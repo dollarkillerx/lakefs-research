@@ -15,9 +15,7 @@ metadata 存储: PostgreSQL
 
 Lakefs 中的提交为不可变提交  
 
-commits 存储在 LSM 数据结构中
-
-TODO： kv数据当前是否存在在pgsql中
+存储 commits id 信息 和 未commit数据信息
 
 lakefs 团队未来的计划: 
 
@@ -49,3 +47,32 @@ lakefs 团队未来的计划:
 - Objects
 
 文件即对象
+
+### 基础功能
+
+![](./README/x1.png)
+
+当前数据: Objects 下  
+历史数据: Commit下
+
+1. x1.png 文件 push 到 仓库下   
+2. 然后   commit  
+3. 如果该文件被删除   就可以通过commit 历史记录 恢复 x1.png 数据  
+
+1. x1.png 文件 push 到 仓库下   没有commit  
+2. 提交同名 x1.png 文件   
+3. 第一次提交的文件当没有记录   (文件 还是存在在 minio中 但没有这个关系了  lakefs无法恢复)
+
+graveler_staging_kv 表 记录 当时 提交到Objects 下 未 commit的数据    同名文件会覆盖记录
+
+具体历史数据 以二进制方式  存在 在minio 当前 `bucket` 的  `_lakefs` 目录 下  
+
+pgsql中 commit表 字段 meta_range_id 对应这minio中的具体记录文件(这个文件是记录关系 而非具体文件)
+
+![](./README/x3.png)
+![](./README/x2.png)
+
+
+
+
+

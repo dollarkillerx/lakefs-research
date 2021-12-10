@@ -1,0 +1,42 @@
+version: '3.2'
+
+services:
+  lakefs:
+    image: "treeverse/lakefs:latest"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - "postgres"
+    volumes:
+      - ./minio.yaml:/etc/lakefs/config.yaml
+#      - ./lake:/home/lakefs/
+#    environment:
+#      - LAKEFS_AUTH_ENCRYPT_SECRET_KEY=10a718b3f285d89c36e9864494cdd1507f3bc85b342df24736ea81f9a1134bcc
+#      - LAKEFS_DATABASE_CONNECTION_STRING=postgres://lakefs:lakefs@postgres/postgres?sslmode=disable
+#      - LAKEFS_BLOCKSTORE_TYPE=s3
+##      - LAKEFS_GATEWAYS_S3_DOMAIN_NAME=${LAKEFS_GATEWAYS_S3_DOMAIN_NAME:-s3.local.lakefs.io:8000}
+#      - LAKEFS_BLOCKSTORE_S3_CREDENTIALS_ACCESS_KEY_ID=lakefs
+#      - LAKEFS_BLOCKSTORE_S3_CREDENTIALS_ACCESS_SECRET_KEY=lakefs_key
+#      - LAKEFS_LOGGING_LEVEL=INFO
+#      - LAKEFS_STATS_ENABLED
+#      - LAKEFS_BLOCKSTORE_S3_ENDPOINT=http://192.168.88.40:34401
+#      - LAKEFS_BLOCKSTORE_S3_FORCE_PATH_STYLE
+##      - LAKEFS_BLOCKSTORE_S3_FORCE_PATH_STYLE
+##      - LAKEFS_COMMITTED_LOCAL_CACHE_DIR=${LAKEFS_COMMITTED_LOCAL_CACHE_DIR:-/home/lakefs/.local_tier}
+    entrypoint: ["/app/wait-for", "postgres:5432", "--", "/app/lakefs", "run"]
+
+  postgres:
+    image: "postgres:14.1-alpine"
+    command: "-c log_min_messages=FATAL"
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_USER: lakefs
+      POSTGRES_PASSWORD: lakefs
+    logging:
+      driver: none
+
+
+# docker stack deploy --compose-file=docker-compose.yaml terminator_eik
+
+# key: AKIAJUQJWJSA6HWHF2NQ   sec key: FFmNdpVv7kpHe7OKq27Y3KTguCYVKmnMeclhClnv
